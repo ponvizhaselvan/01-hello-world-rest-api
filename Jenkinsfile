@@ -16,21 +16,21 @@ pipeline {
 
         stage('Build with Maven') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                bat 'mvn clean package -DskipTests'
             }
         }
 
         stage('Prepare Dependencies for Docker') {
             steps {
-                sh 'mkdir -p target/dependency'
-                sh 'cd target && jar -xf *.jar'
+                bat 'if not exist target\\dependency mkdir target\\dependency'
+                bat 'cd target && for %i in (*.jar) do jar -xf %i'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest ."
+                    bat "docker build -t %DOCKER_HUB_USER%/%IMAGE_NAME%:latest ."
                 }
             }
         }
@@ -39,8 +39,10 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                        sh "docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest"
+                        bat '''
+                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                        docker push %DOCKER_HUB_USER%/%IMAGE_NAME%:latest
+                        '''
                     }
                 }
             }

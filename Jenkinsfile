@@ -22,8 +22,13 @@ pipeline {
 
         stage('Prepare Dependencies for Docker') {
             steps {
-                bat 'if not exist target\\dependency mkdir target\\dependency'
-                bat 'cd target && for %i in (*.jar) do jar -xf %i'
+                bat '''
+                    if not exist target\\dependency mkdir target\\dependency
+                    cd target
+                    for %%f in (*.jar) do (
+                        jar -xf "%%f"
+                    )
+                '''
             }
         }
 

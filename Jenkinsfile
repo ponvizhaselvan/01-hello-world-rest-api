@@ -7,6 +7,7 @@ pipeline {
         IMAGE_NAME = 'restful-web-services'
     }
 
+//Automatically checkout the code from github repository which is mentioned while creating pipeline job
     stages {
         stage('Checkout') {
             steps {
